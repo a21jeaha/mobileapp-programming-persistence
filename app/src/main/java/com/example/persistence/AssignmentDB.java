@@ -11,7 +11,7 @@ public class AssignmentDB extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "person.db";                        // måste vara static för att fungera
     private static final int DATABASE_VERSION = 1;
-    //
+
     public static final String TABLE_PEOPLE = "people";
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_NAMN = "namn";
