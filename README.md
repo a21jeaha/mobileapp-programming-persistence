@@ -1,7 +1,8 @@
 
 # Rapport Assignment 7: SQLite
 
-I denna uppgift skulle man skapa en enklare databas med hjälp av SQLite. Det gjordes med hjälp av koden neddan som skapats som en egen class. 
+I denna uppgift skulle man skapa en enklare databas med hjälp av *SQLite*. Det gjordes med hjälp av koden nedan som skapats som en egen __class__, notera att den extendar *SQLiteOpenHelper*.
+Databasen i sig skapas i metoden `onCreate()`, där Tabellen först får ett namn, sedan anges attributen _id, namn, age, hight. Dessa blir de kolumner som finns i tabellen.
 
 ```java
 public class AssignmentDB extends SQLiteOpenHelper {
@@ -22,7 +23,7 @@ public class AssignmentDB extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {                          //// refraktor och sedan introduce constant användes för att associera namnen på kolumnerna med en konstant.
-        db.execSQL("CREATE TABLE " + TABLE_PEOPLE + " (" +
+        db.execSQL("CREATE TABLE " + TABLE_PEOPLE + " (" +             // här skappas databasen 
                     COLUMN_ID + " INTEGER PRIMARY KEY, " +
                     COLUMN_NAMN + " TEXT, " +
                     COLUMN_AGE + " INTEGER, " +
@@ -36,44 +37,103 @@ public class AssignmentDB extends SQLiteOpenHelper {
 }
 ```
 
+För att möjliggöra registrering av information till databasen skapades en layout i *activity_main* enligt nedan, där varje rad med `EditText` widgets motsvarar en Kolumn i databasen.
 
+![](layout.png)
 
-**Skriv din rapport här!**
+I main klassen skapas alla variabler som associeras med de widgets som finns i layouten. Sedan de klasser som behövs för att möjliggöra arbete med databasen, d.v.s. SQLiteDatabase och AssignmentDB klass som skrevs i början.
+För att göra koden mer lättläslig skapades två metoder, readFromDB() och addToDB(). Dessa anropas vid "klick" på de knappar som finns i layouten.
 
-_Du kan ta bort all text som finns sedan tidigare_.
+```java
+public class MainActivity extends AppCompatActivity {
 
-## Följande grundsyn gäller dugga-svar:
+    private Button readButton;
+    private Button writeButton;
+    private EditText insertName;
+    private EditText insertAge;
+    private EditText insertHight;
+    private TextView textToDB;
+    private SQLiteDatabase db;                          //  en instanse av klasserna SQliteDatabase och den egenskapade klassen skapas
+    private AssignmentDB databaseHelper;                //  (Det är här databasen skapas)
 
-- Ett kortfattat svar är att föredra. Svar som är längre än en sida text (skärmdumpar och programkod exkluderat) är onödigt långt.
-- Svaret skall ha minst en snutt programkod.
-- Svaret skall inkludera en kort övergripande förklarande text som redogör för vad respektive snutt programkod gör eller som svarar på annan teorifråga.
-- Svaret skall ha minst en skärmdump. Skärmdumpar skall illustrera exekvering av relevant programkod. Eventuell text i skärmdumpar måste vara läsbar.
-- I de fall detta efterfrågas, dela upp delar av ditt svar i för- och nackdelar. Dina för- respektive nackdelar skall vara i form av punktlistor med kortare stycken (3-4 meningar).
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-Programkod ska se ut som exemplet nedan. Koden måste vara korrekt indenterad då den blir lättare att läsa vilket gör det lättare att hitta syntaktiska fel.
+        databaseHelper = new AssignmentDB(this);                     // Databas skapad
+        db = databaseHelper.getWritableDatabase();                   // möjliggör ändringar i databasen
 
-```
-function errorCallback(error) {
-    switch(error.code) {
-        case error.PERMISSION_DENIED:
-            // Geolocation API stöds inte, gör något
-            break;
-        case error.POSITION_UNAVAILABLE:
-            // Misslyckat positionsanrop, gör något
-            break;
-        case error.UNKNOWN_ERROR:
-            // Okänt fel, gör något
-            break;
+        readButton = findViewById(R.id.Read_Button);
+        writeButton = findViewById(R.id.Write_Button);
+
+        insertName = findViewById(R.id.database_insert_Name);
+        insertAge = findViewById(R.id.database_insert_Age);
+        insertHight = findViewById(R.id.database_insert_Hight);
+
+        textToDB = findViewById(R.id.texttodb);
+
+        readButton.setOnClickListener(new View.OnClickListener() {        // Leder till metoden som möjliggör läsande från databasen
+            @Override
+            public void onClick(View v) {
+                readFromDB();
+            }
+        });
+
+        writeButton.setOnClickListener(new View.OnClickListener() {        // registrarar klick, och skickar vidare till metoden som skickar den
+                                                                           // lästa informationen till databasen
+            @Override
+            public void onClick(View v) {
+                addToDB();
+            }
+        });
+
     }
-}
 ```
 
-Bilder läggs i samma mapp som markdown-filen.
+Klickar användaren på *WRITE* skickas de till metoden nedan, här registreras de värden som finns skrivna i EditText rutorna i objektet values, sist returneras värdet till databasen.
 
-![](android.png)
+```java
+private long addToDB(){                // sätter in de värden som finns skrivna i EditText rutorna vid klick.
 
-Läs gärna:
+        ContentValues values = new ContentValues();
+        values.put(AssignmentDB.COLUMN_NAMN, insertName.getText().toString());      //
+        values.put(AssignmentDB.COLUMN_AGE, insertAge.getText().toString());        // varje EditText widgets innehåll registreras i __values__ indeviduelt
+        values.put(AssignmentDB.COLUMN_HIGHT, insertHight.getText().toString());    //
 
-- Boulos, M.N.K., Warren, J., Gong, J. & Yue, P. (2010) Web GIS in practice VIII: HTML5 and the canvas element for interactive online mapping. International journal of health geographics 9, 14. Shin, Y. &
-- Wunsche, B.C. (2013) A smartphone-based golf simulation exercise game for supporting arthritis patients. 2013 28th International Conference of Image and Vision Computing New Zealand (IVCNZ), IEEE, pp. 459–464.
-- Wohlin, C., Runeson, P., Höst, M., Ohlsson, M.C., Regnell, B., Wesslén, A. (2012) Experimentation in Software Engineering, Berlin, Heidelberg: Springer Berlin Heidelberg.
+        return db.insert(databaseHelper.TABLE_PEOPLE, null, values);
+
+    }
+```
+
+klickar de på "READ" skickas de istället till denna metod, en mer ingående förklaring för vad koden gör finns angivna som kommentarer i koden. Kortfattat så registreras informationen ur varje rad som en Strängvariabel i en array, dessa variabler sätts sedan ihop till en enda lång sträng som slutligen skickas till textViewn
+
+````java
+private void readFromDB(){          // Tar de värden som finns i tabellen och skriver ut dem i TextViewn
+
+        Cursor cursor = databaseHelper.getReadableDatabase().query(AssignmentDB.TABLE_PEOPLE, null, null,null, null, null, null );
+        ArrayList<String> tempTableInfoArray = new ArrayList<>();                                              // används för att samla informationen från tabellen 
+        String tempTableInfo = "";                                                                             // all information som finns i arrayen kommer skrivas in i denna variabel som en enda läng sträng
+
+        while (cursor.moveToNext()){                                                                           // så länge det finns en ny rad i tabellen fortsätter loopen                                           
+          String name = cursor.getString(cursor.getColumnIndexOrThrow(AssignmentDB.COLUMN_NAMN));               //
+          int age     = cursor.getInt(cursor.getColumnIndexOrThrow(AssignmentDB.COLUMN_AGE));                   // värdena i varje rad registreras indeviduelt. dessa sparas i variabler
+          int hight   =  cursor.getInt(cursor.getColumnIndexOrThrow(AssignmentDB.COLUMN_HIGHT));                //
+          tempTableInfoArray.add("Name: " + name + "   Age: " + age + "    Hight:  " + hight  +"\n");           // en sträng skapas av de innehåll som registrerats i variablerna (varje rad i tabelen kommer få en egen rad i texten då '\n' används)
+        }
+
+
+        for (int j = 0; j < tempTableInfoArray.size(); j++) {           
+            tempTableInfo += tempTableInfoArray.get(j).toString();      // innehållet i varje "__låda__" *Arrayen* sätts till i `String` variabeln 
+        }
+
+        textToDB.setText(tempTableInfo);                                // Texten i variabeln som skapats i raden ovan, skickas till TextViewn 
+        cursor.close();
+    }
+````
+
+
+![](databas.png)
+
+
+

@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
 
         textToDB = findViewById(R.id.texttodb);
 
-        readButton.setOnClickListener(new View.OnClickListener() {        // GÖR KLART SENARE
+        readButton.setOnClickListener(new View.OnClickListener() {        // Leder till metoden som möjliggör läsande från databasen
             @Override
             public void onClick(View v) {
                 readFromDB();
@@ -73,27 +73,25 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void readFromDB(){
+    private void readFromDB(){          // Tar de värden som finns i tabellen och skriver ut dem i TextViewn
 
         Cursor cursor = databaseHelper.getReadableDatabase().query(AssignmentDB.TABLE_PEOPLE, null, null,null, null, null, null );
-        int i = 1;
-        ArrayList<String> tempTableInfoArray = new ArrayList<>();
-        String tempTableInfo = "";
+        ArrayList<String> tempTableInfoArray = new ArrayList<>();                                              // används för att samla informationen från tabellen
+        String tempTableInfo = "";                                                                             // all information som finns i arrayen kommer skrivas in i denna variabel som en enda läng sträng
 
-        while (cursor.moveToNext()){
-          String name = cursor.getString(cursor.getColumnIndexOrThrow(AssignmentDB.COLUMN_NAMN));
-          int age     = cursor.getInt(cursor.getColumnIndexOrThrow(AssignmentDB.COLUMN_AGE));
-          int hight   =  cursor.getInt(cursor.getColumnIndexOrThrow(AssignmentDB.COLUMN_HIGHT));
-          tempTableInfoArray.add("Name: " + name + "   Age: " + age + "    Hight:  " + hight  +"\n");
+        while (cursor.moveToNext()){                                                                           // så länge det finns en ny rad i tabellen fortsätter loopen
+            String name = cursor.getString(cursor.getColumnIndexOrThrow(AssignmentDB.COLUMN_NAMN));               //
+            int age     = cursor.getInt(cursor.getColumnIndexOrThrow(AssignmentDB.COLUMN_AGE));                   // värdena i varje rad registreras indeviduelt. dessa sparas i variabler
+            int hight   =  cursor.getInt(cursor.getColumnIndexOrThrow(AssignmentDB.COLUMN_HIGHT));                //
+            tempTableInfoArray.add("Name: " + name + "   Age: " + age + "    Hight:  " + hight  +"\n");           // en sträng skapas av de innehåll som registrerats i variablerna (varje rad i tabelen kommer få en egen rad i texten då '\n' används)
         }
 
 
         for (int j = 0; j < tempTableInfoArray.size(); j++) {
-            tempTableInfo += tempTableInfoArray.get(j).toString();
-
+            tempTableInfo += tempTableInfoArray.get(j).toString();      // innehållet i varje "__låda__" *Arrayen* sätts till i `String` variabeln
         }
 
-        textToDB.setText(tempTableInfo);
+        textToDB.setText(tempTableInfo);                                // Texten i variabeln som skapats i raden ovan, skickas till TextViewn
         cursor.close();
     }
 }
