@@ -1,5 +1,42 @@
 
-# Rapport
+# Rapport Assignment 7: SQLite
+
+I denna uppgift skulle man skapa en enklare databas med hjälp av SQLite. Det gjordes med hjälp av koden neddan som skapats som en egen class. 
+
+```java
+public class AssignmentDB extends SQLiteOpenHelper {
+
+    private static final String DATABASE_NAME = "person.db";                        // måste vara static för att fungera
+    private static final int DATABASE_VERSION = 1;                                  // höjs med 1 varje gång något ändras i databasen (onUpgrade() anropas)
+
+    public static final String TABLE_PEOPLE = "people";
+    public static final String COLUMN_ID = "_id";
+    public static final String COLUMN_NAMN = "namn";
+    public static final String COLUMN_AGE = "age";
+    public static final String COLUMN_HIGHT = "hight";
+
+    public AssignmentDB(@Nullable Context context) {            // attributen name, factory och version, togs bort 
+        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {                          //// refraktor och sedan introduce constant användes för att associera namnen på kolumnerna med en konstant.
+        db.execSQL("CREATE TABLE " + TABLE_PEOPLE + " (" +
+                    COLUMN_ID + " INTEGER PRIMARY KEY, " +
+                    COLUMN_NAMN + " TEXT, " +
+                    COLUMN_AGE + " INTEGER, " +
+                    COLUMN_HIGHT + " INTEGER )");
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+    }
+}
+```
+
+
 
 **Skriv din rapport här!**
 

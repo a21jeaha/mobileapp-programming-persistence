@@ -18,13 +18,13 @@ public class AssignmentDB extends SQLiteOpenHelper {
     public static final String COLUMN_AGE = "age";
     public static final String COLUMN_HIGHT = "hight";
 
-    public AssignmentDB(@Nullable Context context) {
+    public AssignmentDB(@Nullable Context context) {                // attributen name, factory och version, togs bort
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
 
     @Override
-    public void onCreate(SQLiteDatabase db) {                           //// refractor -- constant
+    public void onCreate(SQLiteDatabase db) {                           //// refraktor och sedan introduce constant användes för att associera namnen på kolumnerna med en konstant.
         db.execSQL("CREATE TABLE " + TABLE_PEOPLE + " (" +
                     COLUMN_ID + " INTEGER PRIMARY KEY, " +
                     COLUMN_NAMN + " TEXT, " +
